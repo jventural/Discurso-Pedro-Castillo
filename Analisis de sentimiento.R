@@ -144,40 +144,10 @@ jpeg("Evolución del senitmiento.jpg",
 simple_plot2(sentimientos_valencia, title = "Evolución de sentimientos en el texto",  legend_pos = "bottomright")
 dev.off()
 
-#volviendo a correr sin las palabras
-corpus <- VCorpus(VectorSource(tidy_txt))
-d3 <- TermDocumentMatrix(corpus)
-findAssocs(d3, terms = "gobierno", corlimit = 0.2)
-
-# install.packages("BiocManager")
-# BiocManager::install("Rgraphviz")
-library(tm)
-library(Rgraphviz)
-#https://journal.code4lib.org/articles/11626
-plot(d3, terms = names(findAssocs(d3,term="gobierno",0.8)[["gobierno"]]), corThreshold = 0.80, cex=7)
-plot(d3, terms = names(findAssocs(d3,term="gobierno",0.8)[["gobierno"]]), corThreshold = 0.80, attrs=list(node=list(label="foo", fillcolor="lightgreen", fontsize="16", shape="ellipse"), edge=list(color="cyan"), graph=list(rankdir="LR")))
-
-
-library(widyr)
+#
 library(dplyr)
-tay_cors <- tidy_txt %>%
-  pairwise_cor(word, word, sort = TRUE)
+oraciones_vector <- syuzhet::get_sentences(txt_tok$word)
+vocabulario_personalizado <- read.csv("archivo.csv")
+method <- "custom"
+sentimientos_oraciones <- get_sentiment(oraciones_vector, method = method, lexicon = vocabulario_personalizado)
 
-library(ggraph)
-library(igraph)
-set.seed(123)
-tay_cors %>%
-  graph_from_data_frame() %>%
-  ggraph(layout = "fr") +
-  geom_edge_link(show.legend = FALSE, aes(edge_alpha = correlation)) +
-  geom_node_point(color = "pink", size = 5) +
-  geom_node_text(aes(label = name), repel = TRUE, size = 3.5, color = "grey40") +
-  theme_void()
-
-ggsave("taymap.png", width = 15, height = 11)
-
-
-#https://www.tidytextmining.com/sentiment.html
-#https://rpubs.com/Joaquin_AR/334526
-#https://www.tidytextmining.com/tidytext.html
-#https://www.tidytextmining.com/sentiment.html
